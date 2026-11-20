@@ -164,7 +164,8 @@ export class CombatSystem {
     mesh.castShadow = true;
     mesh.userData.isPickup = true;
     mesh.userData.pickupType = spawnData.type;
-    mesh.userData.bobOffset = prng.random() * Math.PI * 2;
+        mesh.userData.respawnData = spawnData;
+        mesh.userData.bobOffset = prng.random() * Math.PI * 2;
     mesh.userData.spinSpeed = 1 + prng.random() * 2;
     this.world.scene.add(mesh);
     this.pickups.push(mesh);

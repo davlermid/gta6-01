@@ -1,7 +1,7 @@
-1|// MONSOON ISLES - People System
-2|// Pedestrians walking on sidewalks, wandering, fleeing from danger
-3|
-4|import * as THREE from 'three';
+// MONSOON ISLES - People System
+// Pedestrians walking on sidewalks, wandering, fleeing from danger
+
+import * as THREE from 'three';
 import { prng } from './prng.js';
 const PEDESTRIAN_COLORS = [
   // Shirts

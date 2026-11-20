@@ -1,7 +1,7 @@
-1|// MONSOON ISLES - Audio System
-2|// WebAudio procedural: engine hum, boat motor, gunshot, siren, rain, thunder, footsteps, UI clicks, cash, ambient synthwave
-3|
-4|export class AudioSystem {
+// MONSOON ISLES - Audio System
+// WebAudio procedural: engine hum, boat motor, gunshot, siren, rain, thunder, footsteps, UI clicks, cash, ambient synthwave
+
+export class AudioSystem {
   constructor() {
     this.audioContext = null;
     this.masterGain = null;

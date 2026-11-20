@@ -655,7 +655,7 @@ export class World {
     this.lighthouseLight.castShadow = true;
     this.lighthouse.add(this.lighthouseLight);
 
-    this.lighthouse.setPosition(lx, 0, lz);
+    this.lighthouse.position.set(lx, 0, lz);
     this.scene.add(this.lighthouse);
   }
 

@@ -542,6 +542,7 @@ export class Player {
     this.vehicle = vehicle;
     vehicle.driver = this;
     
+    vehicle.enter(this);
     // Switch camera to vehicle camera
     this.cameraAngleH = 0;
     this.cameraAngleV = 0.3;
@@ -609,3 +610,5 @@ export class Player {
   getHealthPercent() { return this.health / this.maxHealth; }
   getStaminaPercent() { return this.stamina / this.maxStamina; }
 }
+// Need WORLD_SIZE from world.js
+const WORLD_SIZE = 2000;

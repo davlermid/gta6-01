@@ -12,6 +12,10 @@ const VEHICLE_TYPES = {
   SPORTS: { color: 0xffcc00, width: 1.8, length: 4.0, height: 1.1, mass: 1100, maxSpeed: 50, acceleration: 40 },
   VAN: { color: 0xffffff, width: 2.0, length: 4.8, height: 2.0, mass: 2000, maxSpeed: 28, acceleration: 18 },
 };
+'const BOAT_TYPES = {'
+  SPEEDBOAT: { color: 0xcc2222, width: 2.2, length: 6.0, height: 1.5, maxSpeed: 25, acceleration: 15 },
+  FISHING: { color: 0x4444aa, width: 2.5, length: 7.0, height: 2.0, maxSpeed: 15, acceleration: 8 },
+  CARGO: { color: 0x666666, width: 3.5, length: 12.0, height: 3.0, maxSpeed: 12, acceleration: 5 }';'
 
 export class Vehicle {
   constructor(world, type, x, z, angle) {
