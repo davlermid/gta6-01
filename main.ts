@@ -12,6 +12,9 @@
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
+// MONSOON ISLES - Open-world crime game set in a rainy tropical smuggler archipelago
+// Entry point guard: verify game/index.html exists before building dossier
+
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +22,13 @@ import { buildDossier } from './vendor/makefun-game.ts';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
+// Guard: verify game/index.html exists
+const gameIndex = join(here, 'game', 'index.html');
+if (!existsSync(gameIndex)) {
+  throw new Error('MONSOON ISLES: game/index.html not found - game files missing');
+}
+console.log('MONSOON ISLES: Building dossier for smuggler archipelago');
 
 mkdirSync(out, { recursive: true });
 cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
