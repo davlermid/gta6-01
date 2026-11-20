@@ -255,7 +255,7 @@ function placePlayerInBoatAtSea() {
 
   boat.mesh.position.set(boatX, boatY, boatZ);
   boat.rotation = 0;  // Face north towards lighthouse
-  boat.speed = 15;
+  boat.speed = 0;  // Stage: boat stays at the spot
 
   player.enterVehicle(boat);
   player.isInVehicle = true;
@@ -348,15 +348,14 @@ function updateShotCamera(delta) {
       break;
 
     case 'boat':
-      // 10m behind, 4m above
-      const boatBackOffset = new THREE.Vector3(0, 4, 10);
-      boatBackOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), vehicle.rotation.y);
-      camera.position.lerp(vehicle.position.clone().add(boatBackOffset), 0.1);
-      camera.lookAt(
-        vehicle.position.x + Math.sin(vehicle.rotation.y) * 30,
-        vehicle.position.y + 2,
-        vehicle.position.z + Math.cos(vehicle.rotation.y) * 30
-      );
+      // 10m behind, 4m above - direct placement every frame (no lerp)
+      const heading = typeof vehicle.rotation === "number"
+        ? vehicle.rotation
+        : vehicle.rotation?.y ?? 0;
+      const offset = new THREE.Vector3(0, 4, 10);
+      offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), heading);
+      camera.position.copy(vehicle.position).add(offset);
+      camera.lookAt(vehicle.position.x, vehicle.position.y + 1, vehicle.position.z);
       break;
 
     case 'wanted':
