@@ -27,6 +27,25 @@ shotMode = urlParams.get('shot');
 function initShotsInternal() {
   if (!shotMode) return;
 
+  // Handle DOM overlays for shot modes
+  const titleScreenEl = document.getElementById('title-screen');
+  const hudEl = document.getElementById('hud');
+
+  if (shotMode === 'title') {
+    // Title mode: keep overlay but make background transparent so 3D scene shows through
+    if (titleScreenEl) {
+      titleScreenEl.style.background = 'transparent';
+      titleScreenEl.style.display = 'flex';
+    }
+    if (hudEl) hudEl.style.display = 'none';
+  } else {
+    // drive/boat/wanted: hide title screen completely, show HUD
+    if (titleScreenEl) titleScreenEl.style.display = 'none';
+    if (hudEl) hudEl.style.display = 'block';
+  }
+
+  console.log('[SHOTS] initShotsInternal called, mode:', shotMode);
+
   // Renderer: pixelRatio=1, no shadows
   renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById('canvas'),
@@ -98,11 +117,15 @@ function initShotsInternal() {
     }
   }
 
-  // Pixel sampling function
+  // Pixel sampling function - SYNCHRONOUS: render then immediately readPixels
   window.__samplePixels = function() {
+    // Force a render first to ensure drawing buffer has content
+    renderer.render(scene, camera);
+
     const gl = renderer.getContext();
-    const width = renderer.domElement.width;
-    const height = renderer.domElement.height;
+    // Use drawingBufferWidth/Height for correct framebuffer size
+    const width = gl.drawingBufferWidth;
+    const height = gl.drawingBufferHeight;
     const pixels = new Uint8Array(width * height * 4);
     gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
@@ -204,8 +227,9 @@ function placePlayerInSportsCarOnBridge() {
 
 function placePlayerInBoatAtSea() {
   // FIXED coordinates: Open water south of west island, lighthouse north
+  // West island center: (-500, 0), radius ~350. South = z < -350
   const boatX = -500;
-  const boatZ = -200;
+  const boatZ = -600;  // Well south of west island (z=-350 is south edge)
   const boatY = WATER_LEVEL + 0.5;
 
   let boat = null;
@@ -216,13 +240,13 @@ function placePlayerInBoatAtSea() {
     }
   }
   if (!boat) {
-    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, -Math.PI/2);
+    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north (towards lighthouse at z=315)
     boat.isAI = false;
     traffic.boats.push(boat);
   }
 
   boat.mesh.position.set(boatX, boatY, boatZ);
-  boat.rotation = -Math.PI/2;
+  boat.rotation = 0;  // Face north towards lighthouse
   boat.speed = 15;
 
   player.enterVehicle(boat);
@@ -280,6 +304,9 @@ function updateShotCamera(delta) {
   if (!player.vehicle) return;
 
   const vehicle = player.vehicle.mesh;
+
+  // Debug logging
+  console.log('[SHOTS] updateShotCamera mode:', shotMode, 'camera pos:', camera.position.x.toFixed(2), camera.position.y.toFixed(2), camera.position.z.toFixed(2), 'vehicle pos:', vehicle.position.x.toFixed(2), vehicle.position.y.toFixed(2), vehicle.position.z.toFixed(2));
 
   switch (shotMode) {
     case 'title':

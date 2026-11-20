@@ -245,7 +245,11 @@ function initShotMode() {
   }
 
   window.__samplePixels = function() {
+    // Force a render first to ensure drawing buffer has content
+    renderer.render(scene, camera);
+
     const gl = renderer.getContext();
+    // Use drawingBufferWidth/Height for correct framebuffer size
     const width = renderer.domElement.width;
     const height = renderer.domElement.height;
     const pixels = new Uint8Array(width * height * 4);
@@ -253,6 +257,7 @@ function initShotMode() {
 
     let nonBlackCount = 0;
     let totalBrightness = 0;
+
     for (let i = 0; i < pixels.length; i += 4) {
       const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
       const brightness = (r + g + b) / 3;
@@ -329,19 +334,20 @@ function placePlayerInSportsCarOnBridge() {
 
 function placePlayerInBoatAtSea() {
   // Open water between islands, lighthouse island ahead (west island north)
+  // West island center: (-500, 0), radius ~350. South = z < -350
   const boatX = -500;
-  const boatZ = -200;
+  const boatZ = -600;  // Well south of west island (z=-350 is south edge)
   const boatY = WATER_LEVEL + 0.5;
 
   let boat = traffic.boats.find(b => b.type === 'SPEEDBOAT');
   if (!boat) {
-    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, -Math.PI/2);
+    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north towards lighthouse
     boat.isAI = false;
     traffic.boats.push(boat);
   }
 
   boat.mesh.position.set(boatX, boatY, boatZ);
-  boat.rotation = -Math.PI/2;
+  boat.rotation = 0;  // Face north towards lighthouse
   boat.speed = 15;
 
   player.enterVehicle(boat);
