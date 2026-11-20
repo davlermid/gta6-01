@@ -214,9 +214,9 @@ function placePlayerInSportsCarOnBridge() {
   }
 
   sportsCar.mesh.position.set(bridgeX, bridgeY, bridgeZ);
-  sportsCar.rotation = 0;
-  sportsCar.speed = 30;
-  sportsCar.mesh.rotation.y = 0;
+  sportsCar.rotation = Math.PI/2;
+  sportsCar.speed = 0;
+  sportsCar.mesh.rotation.y = Math.PI/2;
 
   player.enterVehicle(sportsCar);
   player.isInVehicle = true;
@@ -241,27 +241,32 @@ function placePlayerInBoatAtSea() {
   }
 
   let boat = null;
-  for (let i = 0; i < Math.min(50, traffic.boats.length); i++) {
-    if (traffic.boats[i].type === 'SPEEDBOAT') {
-      boat = traffic.boats[i];
-      break;
+  try {
+    for (let i = 0; i < Math.min(50, traffic.boats.length); i++) {
+      if (traffic.boats[i].type === 'SPEEDBOAT') {
+        boat = traffic.boats[i];
+        break;
+      }
     }
-  }
-  if (!boat) {
-    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north (towards lighthouse)
-    boat.isAI = false;
-    traffic.boats.push(boat);
-  }
+    if (!boat) {
+      boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north (towards lighthouse)
+      boat.isAI = false;
+      traffic.boats.push(boat);
+    }
 
-  boat.mesh.position.set(boatX, boatY, boatZ);
-  boat.rotation = 0;  // Face north towards lighthouse
-  boat.speed = 0;  // Stage: boat stays at the spot
+    boat.mesh.position.set(boatX, boatY, boatZ);
+    boat.rotation = 0;  // Face north towards lighthouse
+    boat.speed = 0;  // Stage: boat stays at the spot
 
-  player.enterVehicle(boat);
-  player.isInVehicle = true;
-  player.vehicle = boat;
-  boat.driver = player;
-  boat.isPlayer = true;
+    player.enterVehicle(boat);
+    player.isInVehicle = true;
+    player.vehicle = boat;
+    boat.driver = player;
+    boat.isPlayer = true;
+  } catch (e) {
+    console.error('[SHOTS] placePlayerInBoatAtSea error:', e);
+    // Continue staging even if boat creation fails
+  }
 }
 
 function placePlayerInCarWithPolice() {
@@ -339,23 +344,25 @@ function updateShotCamera(delta) {
       // 8m behind, 3m above looking forward
       const backOffset = new THREE.Vector3(0, 3, 8);
       backOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), vehicle.rotation.y);
-      camera.position.lerp(vehicle.position.clone().add(backOffset), 0.1);
-      camera.lookAt(
-        vehicle.position.x + Math.sin(vehicle.rotation.y) * 20,
-        vehicle.position.y + 1,
-        vehicle.position.z + Math.cos(vehicle.rotation.y) * 20
-      );
+      camera.position.copy(vehicle.position).add(backOffset);
+      camera.lookAt(vehicle.position.x, vehicle.position.y+1, vehicle.position.z);
       break;
 
     case 'boat':
-      // 10m behind, 4m above - direct placement every frame (no lerp)
-      const heading = typeof vehicle.rotation === "number"
-        ? vehicle.rotation
-        : vehicle.rotation?.y ?? 0;
-      const offset = new THREE.Vector3(0, 4, 10);
-      offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), heading);
-      camera.position.copy(vehicle.position).add(offset);
-      camera.lookAt(vehicle.position.x, vehicle.position.y + 1, vehicle.position.z);
+      // if vehicle is missing or its position is not finite, use fallback
+      if (!vehicle || !Number.isFinite(vehicle.position.x) || !Number.isFinite(vehicle.position.y) || !Number.isFinite(vehicle.position.z)) {
+        camera.position.set(-500, 6, -640);
+        camera.lookAt(-500, 2, -350);
+      } else {
+        // direct placement as in drive but offset (0,4,10)
+        const heading = typeof vehicle.rotation === "number"
+          ? vehicle.rotation
+          : vehicle.rotation?.y ?? 0;
+        const offset = new THREE.Vector3(0, 4, 10);
+        offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), heading);
+        camera.position.copy(vehicle.position).add(offset);
+        camera.lookAt(vehicle.position.x, vehicle.position.y + 1, vehicle.position.z);
+      }
       break;
 
     case 'wanted':
