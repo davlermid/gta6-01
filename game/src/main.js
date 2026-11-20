@@ -6,9 +6,9 @@ import * as THREE from 'three';
 import { prng, getSeedFromURL } from './prng.js';
 import { createWorld, WORLD_SIZE, WATER_LEVEL, ISLAND_CENTERS } from './world.js';
 import { Player } from './player.js';
-import { TrafficSystem } from './vehicles.js';
+import { TrafficSystem, Vehicle, Boat } from './vehicles.js';
 import { PedestrianSystem } from './people.js';
-import { createPoliceSystem } from './police.js';
+import { createPoliceSystem, PoliceVehicle } from './police.js';
 import { createCombatSystem } from './combat.js';
 import { createMissionSystem } from './missions.js';
 import { createHUDSystem } from './hud.js';
@@ -293,7 +293,7 @@ function placePlayerInSportsCarOnBridge() {
   // Find or create sports car
   let sportsCar = traffic.vehicles.find(v => v.type === 'SPORTS');
   if (!sportsCar) {
-    sportsCar = new (require('./vehicles.js').Vehicle)(world, 'SPORTS', bridgeX, bridgeZ, 0);
+    sportsCar = new Vehicle(world, 'SPORTS', bridgeX, bridgeZ, 0);
     sportsCar.isAI = false;
     traffic.vehicles.push(sportsCar);
   }
@@ -318,7 +318,7 @@ function placePlayerInBoatAtSea() {
 
   let boat = traffic.boats.find(b => b.type === 'SPEEDBOAT');
   if (!boat) {
-    boat = new (require('./vehicles.js').Boat)(world, 'SPEEDBOAT', boatX, boatZ, -Math.PI/2);
+    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, -Math.PI/2);
     boat.isAI = false;
     traffic.boats.push(boat);
   }
@@ -342,7 +342,7 @@ function placePlayerInCarWithPolice() {
 
   let car = traffic.vehicles.find(v => v.type === 'SEDAN');
   if (!car) {
-    car = new (require('./vehicles.js').Vehicle)(world, 'SEDAN', carX, carZ, 0);
+    car = new Vehicle(world, 'SEDAN', carX, carZ, 0);
     car.isAI = false;
     traffic.vehicles.push(car);
   }
@@ -364,7 +364,7 @@ function placePlayerInCarWithPolice() {
   for (let i = 0; i < 2; i++) {
     const px = carX + Math.sin(Math.PI) * (8 + i * 4);
     const pz = carZ + Math.cos(Math.PI) * (8 + i * 4);
-    const policeCar = new (require('./police.js').PoliceVehicle)(world, 'car', px, pz, 0);
+    const policeCar = new PoliceVehicle(world, 'car', px, pz, 0);
     policeCar.aiState = 'pursue';
     policeCar.target = player;
     policeCar.targetPosition = player.position.clone();

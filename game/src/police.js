@@ -242,7 +242,7 @@ export class PoliceVehicle {
         pl.position.copy(light.position);
         this.mesh.add(pl);
         this.navLights.push({ mesh: light, pointLight: pl });
-      }
+      });
 
       // Engine/propeller
       const engineGeo = new THREE.BoxGeometry(0.5, 0.8, 0.6);
