@@ -14,6 +14,7 @@ import { createMissionSystem } from './missions.js';
 import { createHUDSystem } from './hud.js';
 import { createAudioSystem } from './audio.js';
 import { createSaveSystem } from './save.js';
+import { initShots } from './shots.js';
 
 // Game state
 const STATE = {
@@ -74,9 +75,9 @@ window.__shotStats = shotStats;
 
 // Initialize
 async function init() {
-  // Shot mode: minimal setup
+  // Shot mode: delegate to shots.js
   if (shotMode) {
-    return initShotMode();
+    return initShots();
   }
 
   // Renderer
@@ -199,6 +200,16 @@ function initShotMode() {
   world.vehicles = traffic.vehicles;
   world.boats = traffic.boats;
 
+  // Pedestrians for shot modes
+  pedestrians = new PedestrianSystem(world);
+  pedestrians.init();
+  world.pedestrians = pedestrians.pedestrians;
+
+  // Police for shot modes
+  police = createPoliceSystem(world);
+  police.init();
+  world.policeSystem = police;
+
   // Setup shot scene
   setupShotScene();
 
@@ -213,6 +224,12 @@ function initShotMode() {
 
     // Update traffic
     traffic.update(delta, player.position);
+
+    // Update pedestrians
+    pedestrians.update(delta);
+
+    // Update police
+    police.update(delta, player);
 
     // Override camera for shot
     updateShotCamera(delta);

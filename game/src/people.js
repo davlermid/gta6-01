@@ -204,7 +204,7 @@ export class Pedestrian {
 
   update(delta) {
     // Check for threats
-    this.checkThreats();
+    this.checkThreats(delta);
     
     // State machine
     switch (this.state) {
@@ -224,7 +224,7 @@ export class Pedestrian {
     this.updatePosition();
   }
 
-  checkThreats() {
+  checkThreats(delta) {
     // Check for nearby fast vehicles, gunshots, explosions
     let maxThreat = 0;
     let threatPos = null;

@@ -14,9 +14,10 @@ import * as THREE from 'three';
 import { createWorld, WORLD_SIZE, WATER_LEVEL, ISLAND_CENTERS, ISLAND_RADIUS } from './world.js';
 import { Player } from './player.js';
 import { TrafficSystem, Vehicle, Boat } from './vehicles.js';
+import { PedestrianSystem } from './people.js';
 import { createPoliceSystem, PoliceVehicle } from './police.js';
 
-let renderer, scene, camera, world, player, traffic, police;
+let renderer, scene, camera, world, player, traffic, pedestrians, police;
 let shotFrames = 0;
 let shotMode = null;
 
@@ -55,6 +56,10 @@ function initShotsInternal() {
   world.vehicles = traffic.vehicles;
   world.boats = traffic.boats;
 
+  pedestrians = new PedestrianSystem(world);
+  pedestrians.init();
+  world.pedestrians = pedestrians.pedestrians;
+
   police = createPoliceSystem(world);
   police.init();
   world.policeSystem = police;
@@ -73,6 +78,9 @@ function initShotsInternal() {
 
     // Update traffic
     traffic.update(delta, player.position);
+
+    // Update pedestrians
+    pedestrians.update(delta);
 
     // Update police
     police.update(delta, player);

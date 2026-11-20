@@ -4,6 +4,9 @@
 
 import * as THREE from 'three';
 import { prng } from './prng.js';
+import { Pedestrian } from './people.js';
+import { Vehicle } from './vehicles.js';
+import { Boat } from './vehicles.js';
 
 const WEAPON_STATS = {
   pistol: {
@@ -803,3 +806,7 @@ Vehicle.prototype.explode = function() {
     }
   }
 };
+
+// Boat uses same explode logic
+Boat.prototype.takeDamage = Vehicle.prototype.takeDamage;
+Boat.prototype.explode = Vehicle.prototype.explode;

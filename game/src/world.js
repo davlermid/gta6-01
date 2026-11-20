@@ -2,14 +2,14 @@
 // Archipelago: 3 islands, water, roads, buildings, harbor, lighthouse, day/night, rain
 
 import * as THREE from 'three';
-import { prng, createNoise2D } from './prng.js';
+import { prng, createNoise2D, PRNG } from './prng.js';
 
 export const WORLD_SIZE = 2000;
 export const ISLAND_RADIUS = 350;
 export const WATER_LEVEL = 0;
 export const ROAD_WIDTH = 12;
 
-const ISLAND_CENTERS = [
+export const ISLAND_CENTERS = [
   new THREE.Vector2(-500, 0),   // West island
   new THREE.Vector2(500, 0),    // East island
   new THREE.Vector2(0, -500),   // South island

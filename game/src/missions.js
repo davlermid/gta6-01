@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { prng } from './prng.js';
 import { Vehicle, Boat } from './vehicles.js';
+import { ISLAND_CENTERS } from './world.js';
 
 // Mission state constants
 const MISSION_STATE = {
@@ -217,13 +218,6 @@ const SIDE_JOBS = {
     timeLimit: 120,
   },
 };
-
-// Island centers for spawning
-const ISLAND_CENTERS = [
-  new THREE.Vector2(-500, 0),
-  new THREE.Vector2(500, 0),
-  new THREE.Vector2(0, -500),
-];
 
 // Mission system class
 export class MissionSystem {
