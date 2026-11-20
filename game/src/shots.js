@@ -226,11 +226,19 @@ function placePlayerInSportsCarOnBridge() {
 }
 
 function placePlayerInBoatAtSea() {
-  // FIXED coordinates: Open water south of west island, lighthouse north
-  // West island center: (-500, 0), radius ~350. South = z < -350
+  // FIXED coordinates: Open water between west and south islands
+  // West island center: (-500, 0), radius 350; South island center: (0, -500), radius 350
+  // Open water area: use fixed literal coordinates well south of west island
   const boatX = -500;
-  const boatZ = -600;  // Well south of west island (z=-350 is south edge)
+  const boatZ = -700;
   const boatY = WATER_LEVEL + 0.5;
+
+  // Guard: if any coordinate is not finite, fall back to hard-coded safe position
+  if (!Number.isFinite(boatX) || !Number.isFinite(boatZ) || !Number.isFinite(boatY)) {
+    boatX = -500;
+    boatZ = -700;
+    boatY = WATER_LEVEL + 0.5;
+  }
 
   let boat = null;
   for (let i = 0; i < Math.min(50, traffic.boats.length); i++) {
@@ -240,7 +248,7 @@ function placePlayerInBoatAtSea() {
     }
   }
   if (!boat) {
-    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north (towards lighthouse at z=315)
+    boat = new Boat(world, 'SPEEDBOAT', boatX, boatZ, 0);  // Face north (towards lighthouse)
     boat.isAI = false;
     traffic.boats.push(boat);
   }
@@ -257,10 +265,17 @@ function placePlayerInBoatAtSea() {
 }
 
 function placePlayerInCarWithPolice() {
-  // FIXED coordinates: West island street
-  const carX = -500 + 200;
-  const carZ = 50;
+  // FIXED coordinates: West island street intersection
+  const carX = -300;
+  const carZ = 100;
   const carY = world.getGroundHeight(carX, carZ) + 0.35;
+
+  // Guard: if any coordinate is not finite, fall back to hard-coded safe position
+  if (!Number.isFinite(carX) || !Number.isFinite(carZ) || !Number.isFinite(carY)) {
+    carX = -300;
+    carZ = 100;
+    carY = world.getGroundHeight(carX, carZ) + 0.35;
+  }
 
   let car = null;
   for (let i = 0; i < Math.min(50, traffic.vehicles.length); i++) {
@@ -285,19 +300,21 @@ function placePlayerInCarWithPolice() {
   car.driver = player;
   car.isPlayer = true;
 
-  player.wantedLevel = 3;
-  player.wantedTimer = 9999;
-
   // Spawn 2 police cars behind at fixed offsets
+  // Police car 1: 8m directly behind; Police car 2: 12m directly behind
   for (let i = 0; i < 2; i++) {
-    const px = carX + Math.sin(Math.PI) * (8 + i * 4);
-    const pz = carZ + Math.cos(Math.PI) * (8 + i * 4);
+    // Fixed: use literal numbers, no Math.sin/Math.cos that can produce NaN
+    const px = carX + (i === 0 ? -8 : -12);  // 8m or 12m directly behind
+    const pz = carZ;  // Same street position
     const policeCar = new PoliceVehicle(world, 'car', px, pz, 0);
     policeCar.aiState = 'pursue';
     policeCar.target = player;
     policeCar.targetPosition = player.position.clone();
     police.policeCars.push(policeCar);
   }
+
+  player.wantedLevel = 3;
+  player.wantedTimer = 9999;
 }
 
 function updateShotCamera(delta) {
