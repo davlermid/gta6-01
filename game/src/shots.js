@@ -213,7 +213,7 @@ function placePlayerInSportsCarOnBridge() {
     traffic.vehicles.push(sportsCar);
   }
 
-  sportsCar.mesh.position.set(bridgeX, bridgeY, bridgeZ);
+  sportsCar.mesh.position.set(bridgeX + 40, bridgeY, bridgeZ);
   sportsCar.rotation = Math.PI/2;
   sportsCar.speed = 0;
   sportsCar.mesh.rotation.y = Math.PI/2;
@@ -297,7 +297,7 @@ function placePlayerInCarWithPolice() {
 
   car.mesh.position.set(carX, carY, carZ);
   car.rotation = 0;
-  car.speed = 20;
+  car.speed = 0;
 
   player.enterVehicle(car);
   player.isInVehicle = true;
@@ -354,6 +354,13 @@ function updateShotCamera(delta) {
         camera.position.set(-500, 6, -640);
         camera.lookAt(-500, 2, -350);
       } else {
+        // buoyancy fix: force y = 0.5 to avoid NaN from water level
+        if (vehicle.mesh && vehicle.mesh.position) {
+          vehicle.mesh.position.y = 0.5;
+        }
+        if (vehicle.position) {
+          vehicle.position.y = 0.5;
+        }
         // direct placement as in drive but offset (0,4,10)
         const heading = typeof vehicle.rotation === "number"
           ? vehicle.rotation
@@ -366,18 +373,16 @@ function updateShotCamera(delta) {
       break;
 
     case 'wanted':
-      // Behind two police cars (6-10m behind)
+      // Behind two police cars (6-10m behind) - direct placement
       if (police.policeCars.length >= 2) {
         const p1 = police.policeCars[0].mesh;
         const p2 = police.policeCars[1].mesh;
+        const heading = typeof p1.rotation === "number" ? p1.rotation : p1.rotation?.y ?? 0;
         const midX = (p1.position.x + p2.position.x) / 2;
         const midZ = (p1.position.z + p2.position.z) / 2;
-        const backOffset = new THREE.Vector3(0, 3, 12);
-        backOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), p1.rotation.y);
-        camera.position.lerp(
-          new THREE.Vector3(midX, p1.position.y + 3, midZ).add(backOffset),
-          0.1
-        );
+        const offset = new THREE.Vector3(0, 5, 18);
+        offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), heading);
+        camera.position = new THREE.Vector3(midX, p1.position.y + 1, midZ).add(offset);
         camera.lookAt(vehicle.position.x, vehicle.position.y + 1, vehicle.position.z);
       }
       break;
